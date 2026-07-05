@@ -1,5 +1,7 @@
 package org.geraldoluiz.jobber.modules.company.controllers;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.geraldoluiz.jobber.modules.company.entities.CompanyEntity;
 import org.geraldoluiz.jobber.modules.company.useCases.CreateCompanyUseCase;
@@ -12,12 +14,14 @@ import org.springframework.web.bind.annotation.RequestMapping;
 
 @RestController
 @RequestMapping("/company")
+@Tag(name = "Empresa", description = "Operações relacionadas ao cadastro de empresas")
 class CompanyController {
 
     @Autowired
     private CreateCompanyUseCase createCompanyUseCase;
 
     @PostMapping()
+    @Operation(summary = "Criar empresa", description = "Cria uma nova empresa na plataforma")
     public ResponseEntity<Object> create(@Valid @RequestBody CompanyEntity companyEntity)
     {
         try {

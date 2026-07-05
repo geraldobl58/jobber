@@ -1,8 +1,13 @@
 package org.geraldoluiz.jobber.modules.candidate.controllers;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.geraldoluiz.jobber.modules.candidate.entities.CandidateEntity;
-
 import org.geraldoluiz.jobber.modules.candidate.useCases.CreateCandidateUseCase;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -10,17 +15,24 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/candidate")
+@Tag(name = "Candidato", description = "Operações relacionadas ao cadastro de candidatos")
 public class CandidateController {
 
     @Autowired
     private CreateCandidateUseCase createCandidateUseCase;
 
     @PostMapping()
+    @Operation(summary = "Criar candidato", description = "Cria um novo candidato na plataforma")
+    @ApiResponses({
+        @ApiResponse(responseCode = "200", description = "Candidato criado com sucesso",
+            content = @Content(schema = @Schema(implementation = CandidateEntity.class))),
+        @ApiResponse(responseCode = "400", description = "Dados inválidos ou candidato já existente",
+            content = @Content(schema = @Schema(type = "string", example = "Username já existe")))
+    })
     public ResponseEntity<Object> create(@Valid @RequestBody CandidateEntity candidateEntity)
     {
         try {
             var response = this.createCandidateUseCase.execute(candidateEntity);
-
             return ResponseEntity.ok().body(response);
         }
         catch (Exception ex)
@@ -30,6 +42,8 @@ public class CandidateController {
     }
 
     @GetMapping()
+    @Operation(summary = "Listar candidatos", description = "Retorna todos os candidatos cadastrados")
+    @ApiResponse(responseCode = "200", description = "Lista de candidatos retornada com sucesso")
     public void getAllCandidates() {
         System.out.println("Get all candidates");
     }
