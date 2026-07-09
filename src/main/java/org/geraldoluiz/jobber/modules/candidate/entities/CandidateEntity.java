@@ -34,7 +34,7 @@ public class CandidateEntity {
     private String username;
 
     @NotBlank(message = "O campo é obrigatório")
-    @Length(min = 6, max = 20, message = "Password must be between 6 and 20 characters")
+    @Length(min = 6, max = 200, message = "Password must be between 6 and 20 characters")
     @Schema(description = "Senha entre 6 e 20 caracteres", example = "senha123")
     private String password;
 
