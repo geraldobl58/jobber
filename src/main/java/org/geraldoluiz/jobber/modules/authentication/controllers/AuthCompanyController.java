@@ -19,7 +19,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 @RestController
 @RequestMapping("/auth")
 @Tag(name = "Autenticação", description = "Operações relacionadas à autenticação de usuários")
-public class AuthController {
+public class AuthCompanyController {
 
     @Autowired
     private AuthCompanyUseCase  authCompanyUseCase;

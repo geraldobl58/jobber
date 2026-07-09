@@ -26,7 +26,8 @@ public class SecurityConfig {
                     "/v3/api-docs/**",
                     "/candidate",
                     "/company",
-                    "/auth/company"
+                    "/auth/company",
+                    "/auth/candidate"
                 ).permitAll()
                 .anyRequest().authenticated()
             ).addFilterBefore(securityFilter, BasicAuthenticationFilter.class);
