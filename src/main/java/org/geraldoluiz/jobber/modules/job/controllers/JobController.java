@@ -1,5 +1,13 @@
 package org.geraldoluiz.jobber.modules.job.controllers;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import org.geraldoluiz.jobber.modules.job.dto.CreateJobDto;
@@ -16,6 +24,7 @@ import java.util.UUID;
 
 @RestController
 @RequestMapping("/company/job")
+@Tag(name = "Vagas", description = "Operações relacionadas ao cadastro de vagas")
 class JobController {
 
     @Autowired
@@ -23,6 +32,13 @@ class JobController {
 
     @PostMapping()
     @PreAuthorize("hasRole('COMPANY')")
+    @Operation(summary = "Criar vaga", description = "Cria uma nova vaga para a empresa autenticada")
+    @ApiResponses(
+            @ApiResponse(responseCode = "200", content = {
+                    @Content(schema = @Schema(implementation = JobEntity.class))
+            })
+    )
+    @SecurityRequirement(name = "jwt_auth")
     public JobEntity create(@Valid @RequestBody CreateJobDto createJobDto, HttpServletRequest request)
     {
         var companyId = request.getAttribute("company_id");

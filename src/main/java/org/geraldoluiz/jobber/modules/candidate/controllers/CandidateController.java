@@ -1,21 +1,27 @@
 package org.geraldoluiz.jobber.modules.candidate.controllers;
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
+import org.geraldoluiz.jobber.modules.candidate.dto.ProfileCandidateResponseDto;
 import org.geraldoluiz.jobber.modules.candidate.entities.CandidateEntity;
 import org.geraldoluiz.jobber.modules.candidate.useCases.CreateCandidateUseCase;
+import org.geraldoluiz.jobber.modules.candidate.useCases.ListAllJobsFilterUseCase;
 import org.geraldoluiz.jobber.modules.candidate.useCases.ProfileCandidateUseCase;
+import org.geraldoluiz.jobber.modules.job.entities.JobEntity;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.UUID;
 
 @RestController
@@ -28,6 +34,9 @@ public class CandidateController {
 
     @Autowired
     private ProfileCandidateUseCase profileCandidateUseCase;
+
+    @Autowired
+    private ListAllJobsFilterUseCase listAllJobsFilterUseCase;
 
     @PostMapping()
     @Operation(summary = "Criar candidato", description = "Cria um novo candidato na plataforma")
@@ -51,8 +60,13 @@ public class CandidateController {
 
     @GetMapping()
     @PreAuthorize("hasRole('CANDIDATE')")
-    @Operation(summary = "Listar candidatos", description = "Retorna todos os candidatos cadastrados")
-    @ApiResponse(responseCode = "200", description = "Lista de candidatos retornada com sucesso")
+    @Operation(summary = "Listar perfil do candidato", description = "Retorna o perfil do candidato autenticado")
+    @ApiResponses(
+            @ApiResponse(responseCode = "200", content = {
+                    @Content(schema = @Schema(implementation = ProfileCandidateResponseDto.class))
+            })
+    )
+    @SecurityRequirement(name = "jwt_auth")
     public ResponseEntity<Object> get(HttpServletRequest request) {
         var idCandidate = request.getAttribute("candidate_id");
 
@@ -64,5 +78,18 @@ public class CandidateController {
         {
             return ResponseEntity.badRequest().body(ex.getMessage());
         }
+    }
+
+    @GetMapping("/jobs")
+    @PreAuthorize("hasRole('CANDIDATE')")
+    @Operation(summary = "Listar vagas", description = "Retorna todas as vagas filtradas por descrição")
+    @ApiResponses(
+            @ApiResponse(responseCode = "200", content = {
+                    @Content(array = @ArraySchema(schema = @Schema(implementation = JobEntity.class)))
+            })
+    )
+    @SecurityRequirement(name = "jwt_auth")
+    public List<JobEntity> findJobsByFilter(@RequestParam String filter) {
+        return this.listAllJobsFilterUseCase.execute(filter);
     }
 }
