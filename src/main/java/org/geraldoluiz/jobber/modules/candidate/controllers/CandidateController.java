@@ -13,6 +13,7 @@ import org.geraldoluiz.jobber.modules.candidate.useCases.CreateCandidateUseCase;
 import org.geraldoluiz.jobber.modules.candidate.useCases.ProfileCandidateUseCase;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.UUID;
@@ -49,6 +50,7 @@ public class CandidateController {
     }
 
     @GetMapping()
+    @PreAuthorize("hasRole('CANDIDATE')")
     @Operation(summary = "Listar candidatos", description = "Retorna todos os candidatos cadastrados")
     @ApiResponse(responseCode = "200", description = "Lista de candidatos retornada com sucesso")
     public ResponseEntity<Object> get(HttpServletRequest request) {
