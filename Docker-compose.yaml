@@ -1,4 +1,6 @@
-version: "3.8"
+networks:
+    jobber-network:
+        driver: bridge
 
 services:
   postgres:
@@ -17,7 +19,46 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
+    networks:
+      - jobber-network
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: jobber-prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      - prometheus_data:/prometheus
+      - ./config/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+    command:
+      - "--config.file=/etc/prometheus/prometheus.yml"
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q --spider http://localhost:9090/-/healthy || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - jobber-network
+
+  grafana:
+    image: grafana/grafana:latest
+    container_name: jobber-grafana
+    depends_on:
+      - prometheus
+    ports:
+      - "3001:3000"
+    environment:
+      GF_SECURITY_ADMIN_USER: admin
+      GF_SECURITY_ADMIN_PASSWORD: admin
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ./config/grafana/provisioning/datasources:/etc/grafana/provisioning/datasources:ro
+    networks:
+      - jobber-network
 
 volumes:
   postgres_data:
+    driver: local
+  prometheus_data:
+    driver: local
+  grafana_data:
     driver: local
