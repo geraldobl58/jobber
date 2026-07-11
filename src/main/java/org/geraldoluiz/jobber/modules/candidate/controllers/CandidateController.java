@@ -6,12 +6,16 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import org.geraldoluiz.jobber.modules.candidate.entities.CandidateEntity;
 import org.geraldoluiz.jobber.modules.candidate.useCases.CreateCandidateUseCase;
+import org.geraldoluiz.jobber.modules.candidate.useCases.ProfileCandidateUseCase;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/candidate")
@@ -20,6 +24,9 @@ public class CandidateController {
 
     @Autowired
     private CreateCandidateUseCase createCandidateUseCase;
+
+    @Autowired
+    private ProfileCandidateUseCase profileCandidateUseCase;
 
     @PostMapping()
     @Operation(summary = "Criar candidato", description = "Cria um novo candidato na plataforma")
@@ -44,7 +51,16 @@ public class CandidateController {
     @GetMapping()
     @Operation(summary = "Listar candidatos", description = "Retorna todos os candidatos cadastrados")
     @ApiResponse(responseCode = "200", description = "Lista de candidatos retornada com sucesso")
-    public void getAllCandidates() {
-        System.out.println("Get all candidates");
+    public ResponseEntity<Object> get(HttpServletRequest request) {
+        var idCandidate = request.getAttribute("candidate_id");
+
+        try {
+            var profile = this.profileCandidateUseCase.execute(UUID.fromString(idCandidate.toString()));
+            return ResponseEntity.ok().body(profile);
+        }
+        catch (Exception ex)
+        {
+            return ResponseEntity.badRequest().body(ex.getMessage());
+        }
     }
 }
