@@ -33,7 +33,8 @@ public class SecurityConfig {
                     "/candidate",
                     "/company",
                     "/auth/company",
-                    "/auth/candidate"
+                    "/auth/candidate",
+                    "/actuator/**"
                 ).permitAll()
                 .anyRequest().authenticated()
             )
